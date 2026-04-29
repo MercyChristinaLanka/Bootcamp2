@@ -3,3 +3,9 @@
 *.tfstate.*
 crash.log
 *.exe
+
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.log

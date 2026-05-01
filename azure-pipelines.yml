@@ -1,4 +1,17 @@
-- task: TerraformInstaller@1
-  displayName: Install Terraform
-  inputs:
-    terraformVersion: '1.5.0'
+trigger:
+- main
+
+stages:
+
+- stage: Init
+  jobs:
+  - job: InitJob
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - checkout: self
+
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: '1.5.0'

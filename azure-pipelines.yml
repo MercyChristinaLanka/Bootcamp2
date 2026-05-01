@@ -46,9 +46,13 @@ stages:
     steps:
     - checkout: self
 
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: $(TF_VERSION)
+
     - script: |
-        cd $(WORKING_DIR)
         terraform version
+        cd $(WORKING_DIR)
         terraform plan -var-file="dev.tfvars" -out=tfplan
       displayName: "Terraform Plan"
 
@@ -66,7 +70,12 @@ stages:
     steps:
     - checkout: self
 
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: $(TF_VERSION)
+
     - script: |
+        terraform version
         cd $(WORKING_DIR)
         terraform apply -auto-approve tfplan
       displayName: "Terraform Apply"

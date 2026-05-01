@@ -57,14 +57,13 @@ stages:
         command: plan
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file="$(TF_VARS_FILE)" -out=tfplan'  
+        commandOptions: '-var-file="$(TF_VARS_FILE)" -out=tfplan'
 
 # ================= APPLY =================
 - stage: Apply
   displayName: "Terraform Apply"
   dependsOn: Plan
   condition: succeeded()
-
   jobs:
   - job: ApplyJob
     pool:

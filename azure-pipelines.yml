@@ -37,22 +37,19 @@ stages:
 - stage: Plan
   displayName: "Terraform Plan"
   dependsOn: Init
+
   jobs:
   - job: PlanJob
     pool:
       vmImage: ubuntu-latest
-    steps:
 
+    steps:
     - checkout: self
 
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: $(TF_VERSION)
-
     - script: |
-        terraform version
         cd $(WORKING_DIR)
-        terraform plan -var-file="$(TF_VARS_FILE)" -out=tfplan
+        terraform version
+        terraform plan -var-file="dev.tfvars" -out=tfplan
       displayName: "Terraform Plan"
 
 # ================= APPLY =================
@@ -60,20 +57,16 @@ stages:
   displayName: "Terraform Apply"
   dependsOn: Plan
   condition: succeeded()
+
   jobs:
   - job: ApplyJob
     pool:
       vmImage: ubuntu-latest
-    steps:
 
+    steps:
     - checkout: self
 
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: $(TF_VERSION)
-
     - script: |
-        terraform version
         cd $(WORKING_DIR)
         terraform apply -auto-approve tfplan
       displayName: "Terraform Apply"

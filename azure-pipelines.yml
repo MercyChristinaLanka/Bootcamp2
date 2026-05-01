@@ -1,6 +1,6 @@
 variables:
   TF_VERSION: '1.5.0'
-  WORKING_DIR: 'Env/dev'
+  WORKING_DIR: '$(System.DefaultWorkingDirectory)/Env/dev'
   SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
@@ -15,7 +15,6 @@ stages:
     steps:
     - checkout: self
 
-    # ✅ FIX: Install Terraform explicitly
     - task: TerraformInstaller@1
       inputs:
         terraformVersion: $(TF_VERSION)
@@ -37,6 +36,7 @@ stages:
         command: plan
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+        commandOptions: '-var-file=dev.tfvars'
 
 # ================= APPLY =================
 - stage: Apply
@@ -51,7 +51,6 @@ stages:
     steps:
     - checkout: self
 
-    # ✅ FIX: Install Terraform again in new job
     - task: TerraformInstaller@1
       inputs:
         terraformVersion: $(TF_VERSION)
@@ -73,4 +72,4 @@ stages:
         command: apply
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-auto-approve'
+        commandOptions: '-auto-approve -var-file=dev.tfvars'

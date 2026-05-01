@@ -4,19 +4,20 @@ trigger:
 variables:
   TF_VERSION: '1.5.0'
   WORKING_DIR: 'Env/dev'
-  TF_VARS_FILE: 'Env/dev/dev.tfvars'
+  SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
 
 # ================= INIT =================
 - stage: Init
   displayName: "Terraform Init"
+
   jobs:
   - job: InitJob
     pool:
       vmImage: ubuntu-latest
-    steps:
 
+    steps:
     - checkout: self
 
     - task: TerraformInstaller@1
@@ -24,8 +25,9 @@ stages:
         terraformVersion: $(TF_VERSION)
 
     - script: |
-        terraform version
         cd $(WORKING_DIR)
+        terraform version
+
         terraform init \
           -backend-config="resource_group_name=jenkins-rg" \
           -backend-config="storage_account_name=devbackendrg" \
@@ -51,9 +53,10 @@ stages:
         terraformVersion: $(TF_VERSION)
 
     - script: |
-        cd Env/dev
-        terraform init
-        terraform plan -out=tfplan
+        cd $(WORKING_DIR)
+
+        terraform version
+        terraform plan -var-file="dev.tfvars" -out=tfplan
       displayName: "Terraform Plan"
 
 # ================= APPLY =================
@@ -75,6 +78,7 @@ stages:
         terraformVersion: $(TF_VERSION)
 
     - script: |
-        cd Env/dev
+        cd $(WORKING_DIR)
+
         terraform apply -auto-approve tfplan
       displayName: "Terraform Apply"

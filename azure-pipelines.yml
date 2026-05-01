@@ -4,7 +4,7 @@ trigger:
 variables:
   TF_VERSION: '1.5.0'
   WORKING_DIR: 'environments/dev'
-  SERVICE_CONNECTION: 'terraform-azure-conn'
+  SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
 

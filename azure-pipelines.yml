@@ -1,35 +1,26 @@
-trigger:
-- main
+steps:
+- checkout: self
 
-stages:
+- task: TerraformInstaller@1
+  displayName: Install Terraform
+  inputs:
+    terraformVersion: '1.5.0'
 
-- stage: Init
-  jobs:
-  - job: InitJob
-    pool:
-      vmImage: 'ubuntu-latest'
+- script: |
+    echo "Checking Terraform install..."
+    ls -R /opt/hostedtoolcache || true
+    terraform version || true
+    which terraform || true
+  displayName: Debug Terraform Install
 
-    steps:
-    - checkout: self
-
-    - task: TerraformInstaller@1
-      displayName: Install Terraform
-      inputs:
-        terraformVersion: '1.5.0'
-
-    - script: |
-        terraform version
-        which terraform
-      displayName: Verify Terraform
-
-    - task: TerraformTaskV4@4
-      displayName: Terraform Init
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: $(WORKING_DIR)
-        backendServiceArm: 'azure-terraform-conn'
-        backendAzureRmResourceGroupName: 'jenkins_rg'
-        backendAzureRmStorageAccountName: 'devbackendstorage123'
-        backendAzureRmContainerName: 'mybackup'
-        backendAzureRmKey: 'dev.tfstate'
+- task: TerraformTaskV4@4
+  displayName: Terraform Init
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: $(WORKING_DIR)
+    backendServiceArm: 'azure-terraform-conn'
+    backendAzureRmResourceGroupName: 'jenkins_rg'
+    backendAzureRmStorageAccountName: 'devbackendrg'
+    backendAzureRmContainerName: 'mybackup'
+    backendAzureRmKey: 'dev.tfstate'

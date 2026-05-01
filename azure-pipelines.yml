@@ -51,7 +51,7 @@ stages:
         command: plan
         workingDirectory: '$(System.DefaultWorkingDirectory)/Env/dev'
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file=dev.tfvars'
+        
 
 # ================= APPLY =================
 - stage: Apply

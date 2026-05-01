@@ -6,8 +6,21 @@ steps:
   inputs:
     terraformVersion: '1.5.0'
 
+
 - script: |
     echo "Checking Terraform..."
     terraform version
     which terraform
   displayName: Verify Terraform Install
+
+- task: TerraformTaskV4@4
+  displayName: Terraform Init
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: $(WORKING_DIR)
+    backendServiceArm: 'azure-terraform-conn'
+    backendAzureRmResourceGroupName: 'jenkins_rg'
+    backendAzureRmStorageAccountName: 'devbackendrg'
+    backendAzureRmContainerName: 'mybackup'
+    backendAzureRmKey: 'dev.tfstate'

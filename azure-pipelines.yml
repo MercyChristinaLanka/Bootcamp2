@@ -53,15 +53,13 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - task: TerraformTaskV4@4
-      displayName: "Terraform Plan"
-      inputs:
-        provider: azurerm
-        command: plan
-        workingDirectory: $(WORKING_DIR)
-        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file="terraform.tfvars" -out=tfplan'
+    - script: |
+        cd Env/dev
 
+        terraform init
+
+        terraform plan -var-file="terraform.tfvars" -out=tfplan
+      displayName: "Terraform Plan"
 # ================= APPLY =================
 - stage: Apply
   displayName: "Terraform Apply"
@@ -80,11 +78,7 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - task: TerraformTaskV4@4
+    - script: |
+        cd Env/dev
+        terraform apply -auto-approve tfplan
       displayName: "Terraform Apply"
-      inputs:
-        provider: azurerm
-        command: apply
-        workingDirectory: $(WORKING_DIR)
-        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-auto-approve tfplan'

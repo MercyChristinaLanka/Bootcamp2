@@ -40,7 +40,6 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    - checkout: self
 
     - task: TerraformInstaller@1
       inputs:
@@ -49,19 +48,8 @@ stages:
     - task: TerraformTaskV4@4
       inputs:
         provider: azurerm
-        command: init
-        workingDirectory: $(WORKING_DIR)
-        backendServiceArm: $(SERVICE_CONNECTION)
-        backendAzureRmResourceGroupName: 'jenkins-rg'
-        backendAzureRmStorageAccountName: 'devbackendrg'
-        backendAzureRmContainerName: 'mybackup'
-        backendAzureRmKey: 'dev.tfstate'
-
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: azurerm
         command: plan
-        workingDirectory: $(WORKING_DIR)
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Env/dev'
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
         commandOptions: '-var-file=dev.tfvars'
 

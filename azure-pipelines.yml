@@ -1,5 +1,5 @@
 trigger:
-- master
+- main
 
 variables:
   TF_VERSION: '1.5.0'
@@ -24,6 +24,7 @@ stages:
         terraformVersion: $(TF_VERSION)
 
     - task: TerraformTaskV4@4
+      displayName: "Terraform Init"
       inputs:
         provider: azurerm
         command: init
@@ -50,6 +51,7 @@ stages:
         terraformVersion: $(TF_VERSION)
 
     - task: TerraformTaskV4@4
+      displayName: "Terraform Plan"
       inputs:
         provider: azurerm
         command: plan
@@ -62,6 +64,7 @@ stages:
   displayName: "Terraform Apply"
   dependsOn: Plan
   condition: succeeded()
+
   jobs:
   - job: ApplyJob
     pool:
@@ -74,6 +77,7 @@ stages:
         terraformVersion: $(TF_VERSION)
 
     - task: TerraformTaskV4@4
+      displayName: "Terraform Apply"
       inputs:
         provider: azurerm
         command: apply

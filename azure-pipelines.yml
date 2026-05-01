@@ -17,5 +17,5 @@ steps:
 - script: |
     terraform version
     terraform init
-  workingDirectory: environments/dev
+  workingDirectory: Env/dev
   displayName: "Terraform Init"

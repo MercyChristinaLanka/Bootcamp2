@@ -55,18 +55,17 @@ stages:
 
     - script: |
         cd Env/dev
-        ls -la
-        cat terraform.tfvars
-      displayName: "Debug tfvars"
 
-    - task: TerraformTaskV4@4
-      displayName: "Terraform Plan"
-      inputs:
-        provider: azurerm
-        command: plan
-        workingDirectory: 'Env/dev'
-        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file="terraform.tfvars" -out=tfplan'
+        echo "=== FILES ==="
+        ls -la
+
+        echo "=== TFVARS ==="
+        cat terraform.tfvars
+
+        terraform init
+
+        terraform plan -var-file="terraform.tfvars" -out=tfplan
+      displayName: "Terraform Plan (FIXED)"
 
 # ================= APPLY =================
 - stage: Apply
@@ -86,11 +85,7 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - task: TerraformTaskV4@4
+    - script: |
+        cd Env/dev
+        terraform apply -auto-approve tfplan
       displayName: "Terraform Apply"
-      inputs:
-        provider: azurerm
-        command: apply
-        workingDirectory: 'Env/dev'
-        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: 'tfplan'

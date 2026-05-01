@@ -15,6 +15,11 @@ stages:
     steps:
     - checkout: self
 
+    # ✅ FIX: Install Terraform explicitly
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: $(TF_VERSION)
+
     - task: TerraformTaskV4@4
       inputs:
         provider: azurerm
@@ -45,6 +50,11 @@ stages:
 
     steps:
     - checkout: self
+
+    # ✅ FIX: Install Terraform again in new job
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: $(TF_VERSION)
 
     - task: TerraformTaskV4@4
       inputs:

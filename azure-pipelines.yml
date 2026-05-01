@@ -20,9 +20,11 @@ stages:
     steps:
     - checkout: self
 
+    
+
     - task: TerraformInstaller@1
       inputs:
-        terraformVersion: $(TF_VERSION)
+        terraformVersion: 1.5.0
 
     - task: TerraformTaskV4@4
       displayName: "Terraform Init"
@@ -35,3 +37,6 @@ stages:
         backendAzureRmStorageAccountName: 'devbackendstorage123'
         backendAzureRmContainerName: 'myterrbackup'
         backendAzureRmKey: 'dev.tfstate'
+
+
+     

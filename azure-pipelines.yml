@@ -51,10 +51,22 @@ stages:
         terraformVersion: $(TF_VERSION)
 
     - script: |
-        terraform version
+        echo "Current directory:"
+        pwd
+
+        echo "Listing repo:"
+        ls -R
+
+        echo "Going to working dir:"
         cd $(WORKING_DIR)
+
+        echo "Inside working dir:"
+        pwd
+        ls -la
+
+        terraform version
         terraform plan -var-file="dev.tfvars" -out=tfplan
-      displayName: "Terraform Plan"
+      displayName: "Terraform Plan (DEBUG)"
 
 # ================= APPLY =================
 - stage: Apply

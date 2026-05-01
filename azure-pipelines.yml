@@ -1,12 +1,34 @@
+trigger:
+- main
+
 variables:
   TF_VERSION: '1.5.0'
-  WORKING_DIR: '$(System.DefaultWorkingDirectory)/Env/dev'
   SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
 
+# ================= DEBUG STAGE (IMPORTANT) =================
+- stage: Debug
+  displayName: "Debug Repo Structure"
+  jobs:
+  - job: DebugJob
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+    - checkout: self
+
+    - script: |
+        echo "========== REPO ROOT =========="
+        pwd
+
+        echo "========== FULL REPO STRUCTURE =========="
+        ls -R $(System.DefaultWorkingDirectory)
+      displayName: "Show Repo Structure"
+
 # ================= PLAN =================
 - stage: Plan
+  dependsOn: Debug
   jobs:
   - job: PlanJob
     pool:
@@ -23,7 +45,7 @@ stages:
       inputs:
         provider: azurerm
         command: init
-        workingDirectory: $(WORKING_DIR)
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Env/dev'
         backendServiceArm: $(SERVICE_CONNECTION)
         backendAzureRmResourceGroupName: 'jenkins_rg'
         backendAzureRmStorageAccountName: 'devbackendrg'
@@ -34,9 +56,9 @@ stages:
       inputs:
         provider: azurerm
         command: plan
-        workingDirectory: $(WORKING_DIR)
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Env/dev'
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file=$(System.DefaultWorkingDirectory)/Env/dev/dev.tfvars'
+        commandOptions: '-var-file=dev.tfvars'
 
 # ================= APPLY =================
 - stage: Apply
@@ -59,7 +81,7 @@ stages:
       inputs:
         provider: azurerm
         command: init
-        workingDirectory: $(WORKING_DIR)
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Env/dev'
         backendServiceArm: $(SERVICE_CONNECTION)
         backendAzureRmResourceGroupName: 'jenkins_rg'
         backendAzureRmStorageAccountName: 'devbackendrg'
@@ -70,6 +92,6 @@ stages:
       inputs:
         provider: azurerm
         command: apply
-        workingDirectory: $(WORKING_DIR)
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Env/dev'
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file=$(System.DefaultWorkingDirectory)/Env/dev/dev.tfvars'
+        commandOptions: '-auto-approve -var-file=dev.tfvars'

@@ -3,7 +3,6 @@ trigger:
 
 variables:
   TF_VERSION: '1.5.0'
-  WORKING_DIR: 'Env/dev'
 
 stages:
 
@@ -16,20 +15,19 @@ stages:
     steps:
     - checkout: self
       clean: true
-
-    - script: |
-        find . -name "*.tf.txt" -delete
-        find . -name "*.tfvars.txt" -delete
-      displayName: "Clean old files"
+      fetchDepth: 0
 
     - task: TerraformInstaller@1
       inputs:
         terraformVersion: $(TF_VERSION)
 
     - script: |
-        cd $(WORKING_DIR)
+        echo "FULL FILE LIST:"
+        find $(System.DefaultWorkingDirectory)
 
-        echo "FILES AFTER CLEAN:"
+        cd $(System.DefaultWorkingDirectory)/Env/dev
+
+        echo "Inside Terraform folder:"
         ls -la
 
         terraform init \
@@ -53,13 +51,14 @@ stages:
     steps:
     - checkout: self
       clean: true
+      fetchDepth: 0
 
     - task: TerraformInstaller@1
       inputs:
         terraformVersion: $(TF_VERSION)
 
     - script: |
-        cd $(WORKING_DIR)
+        cd $(System.DefaultWorkingDirectory)/Env/dev
 
         terraform init \
           -backend-config="resource_group_name=jenkins_rg" \

@@ -1,34 +1,15 @@
 trigger:
-- main
+- master
 
 variables:
   TF_VERSION: '1.5.0'
+  WORKING_DIR: 'Env/dev'
   SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
 
-# ================= DEBUG STAGE =================
-- stage: Debug
-  displayName: "Debug Repo Structure"
-  jobs:
-  - job: DebugJob
-    pool:
-      vmImage: ubuntu-latest
-
-    steps:
-    - checkout: self
-
-    - script: |
-        echo "==================== PWD ===================="
-        pwd
-
-        echo "================ FULL REPO STRUCTURE ================="
-        ls -R $(System.DefaultWorkingDirectory)
-      displayName: "Show Repository Structure"
-
 # ================= PLAN =================
 - stage: Plan
-  dependsOn: Debug
   jobs:
   - job: PlanJob
     pool:
@@ -41,24 +22,23 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: azurerm
-        command: init
-        workingDirectory: 'Env/dev'
-        backendServiceArm: $(SERVICE_CONNECTION)
-        backendAzureRmResourceGroupName: 'jenkins_rg'
-        backendAzureRmStorageAccountName: 'devbackendrg'
-        backendAzureRmContainerName: 'mybackup'
-        backendAzureRmKey: 'dev.tfstate'
+    - script: |
+        cd $(WORKING_DIR)
 
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: azurerm
-        command: plan
-        workingDirectory: 'Env/dev'
-        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file=dev.tfvars'
+        echo "PWD:"
+        pwd
+
+        echo "FILES:"
+        ls -la
+
+        terraform init \
+          -backend-config="resource_group_name=jenkins_rg" \
+          -backend-config="storage_account_name=devbackendrg" \
+          -backend-config="container_name=mybackup" \
+          -backend-config="key=dev.tfstate"
+
+        terraform plan -var-file=dev.tfvars
+      displayName: "Terraform Plan (CLI)"
 
 # ================= APPLY =================
 - stage: Apply
@@ -77,21 +57,14 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: azurerm
-        command: init
-        workingDirectory: 'Env/dev'
-        backendServiceArm: $(SERVICE_CONNECTION)
-        backendAzureRmResourceGroupName: 'jenkins_rg'
-        backendAzureRmStorageAccountName: 'devbackendrg'
-        backendAzureRmContainerName: 'mybackup'
-        backendAzureRmKey: 'dev.tfstate'
+    - script: |
+        cd $(WORKING_DIR)
 
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: azurerm
-        command: apply
-        workingDirectory: 'Env/dev'
-        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-auto-approve -var-file=dev.tfvars'
+        terraform init \
+          -backend-config="resource_group_name=jenkins_rg" \
+          -backend-config="storage_account_name=devbackendrg" \
+          -backend-config="container_name=mybackup" \
+          -backend-config="key=dev.tfstate"
+
+        terraform apply -auto-approve -var-file=dev.tfvars
+      displayName: "Terraform Apply (CLI)"

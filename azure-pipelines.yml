@@ -30,6 +30,6 @@ stages:
         workingDirectory: $(WORKING_DIR)
         backendServiceArm: 'azure-terraform-conn'
         backendAzureRmResourceGroupName: 'jenkins_rg'
-        backendAzureRmStorageAccountName: 'devbackendrg'
+        backendAzureRmStorageAccountName: 'devbackendstorage123'
         backendAzureRmContainerName: 'mybackup'
         backendAzureRmKey: 'dev.tfstate'

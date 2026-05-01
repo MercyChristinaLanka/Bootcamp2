@@ -27,3 +27,9 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'init'
+        workingDirectory: $(WORKING_DIR)
+        backendServiceArm: 'azure-terraform-conn'
+        backendAzureRmResourceGroupName: 'jenkins_rg'
+        backendAzureRmStorageAccountName: 'devbackendrg'
+        backendAzureRmContainerName: 'mybackup'
+        backendAzureRmKey: 'dev.tfstate'

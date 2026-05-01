@@ -24,16 +24,17 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - script: |
-        cd $(WORKING_DIR)
-        terraform version
-
-        terraform init \
-          -backend-config="resource_group_name=jenkins-rg" \
-          -backend-config="storage_account_name=devbackendrg" \
-          -backend-config="container_name=mybackup" \
-          -backend-config="key=dev.tfstate"
+    - task: TerraformTaskV4@4
       displayName: "Terraform Init"
+      inputs:
+        provider: azurerm
+        command: init
+        workingDirectory: 'Env/dev'
+        backendServiceArm: $(SERVICE_CONNECTION)
+        backendAzureRmResourceGroupName: 'jenkins-rg'
+        backendAzureRmStorageAccountName: 'devbackendrg'
+        backendAzureRmContainerName: 'mybackup'
+        backendAzureRmKey: 'dev.tfstate'
 
 # ================= PLAN =================
 - stage: Plan
@@ -52,6 +53,12 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
+    - script: |
+        cd Env/dev
+        ls -la
+        cat terraform.tfvars
+      displayName: "Debug tfvars"
+
     - task: TerraformTaskV4@4
       displayName: "Terraform Plan"
       inputs:
@@ -60,6 +67,7 @@ stages:
         workingDirectory: 'Env/dev'
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
         commandOptions: '-var-file="terraform.tfvars" -out=tfplan'
+
 # ================= APPLY =================
 - stage: Apply
   displayName: "Terraform Apply"
@@ -78,8 +86,11 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - script: |
-        cd $(WORKING_DIR)
-
-        terraform apply -auto-approve tfplan
+    - task: TerraformTaskV4@4
       displayName: "Terraform Apply"
+      inputs:
+        provider: azurerm
+        command: apply
+        workingDirectory: 'Env/dev'
+        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+        commandOptions: 'tfplan'

@@ -7,15 +7,24 @@ pool:
 steps:
 - checkout: self
 
-- script: |
-    echo "Repo structure:"
-    ls -R
-  displayName: "Show Repo"
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: '1.5.0'
 
-- script: |
-    cd Env/dev
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: 'Env/dev'
+    backendServiceArm: 'azure-terraform-conn'
+    backendAzureRmResourceGroupName: 'jenkins_rg'
+    backendAzureRmStorageAccountName: 'devbackendrg'
+    backendAzureRmContainerName: 'mybackup'
+    backendAzureRmKey: 'dev.tfstate'
 
-    terraform version
-    terraform init
-    terraform plan -var-file=dev.tfvars
-  displayName: "Terraform Plan"
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: 'Env/dev'
+    environmentServiceNameAzureRM: 'azure-terraform-conn'

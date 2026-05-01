@@ -1,70 +1,30 @@
 trigger:
 - master
 
-variables:
-  TF_VERSION: '1.5.0'
+pool:
+  vmImage: ubuntu-latest
 
-stages:
+steps:
+- checkout: self
 
-- stage: Plan
-  jobs:
-  - job: PlanJob
-    pool:
-      vmImage: ubuntu-latest
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: '1.5.0'
 
-    steps:
-    - checkout: self
-      clean: true
-      fetchDepth: 0
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: 'Env/dev'
+    backendServiceArm: 'azure-terraform-conn'
+    backendAzureRmResourceGroupName: 'jenkins_rg'
+    backendAzureRmStorageAccountName: 'devbackendrg'
+    backendAzureRmContainerName: 'mybackup'
+    backendAzureRmKey: 'dev.tfstate'
 
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: $(TF_VERSION)
-
-    - script: |
-        echo "FULL FILE LIST:"
-        find $(System.DefaultWorkingDirectory)
-
-        cd $(System.DefaultWorkingDirectory)/Env/dev
-
-        echo "Inside Terraform folder:"
-        ls -la
-
-        terraform init \
-          -backend-config="resource_group_name=jenkins_rg" \
-          -backend-config="storage_account_name=devbackendrg" \
-          -backend-config="container_name=mybackup" \
-          -backend-config="key=dev.tfstate"
-
-        terraform plan -var-file=dev.tfvars
-      displayName: "Terraform Plan"
-
-- stage: Apply
-  dependsOn: Plan
-  condition: succeeded()
-
-  jobs:
-  - job: ApplyJob
-    pool:
-      vmImage: ubuntu-latest
-
-    steps:
-    - checkout: self
-      clean: true
-      fetchDepth: 0
-
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: $(TF_VERSION)
-
-    - script: |
-        cd $(System.DefaultWorkingDirectory)/Env/dev
-
-        terraform init \
-          -backend-config="resource_group_name=jenkins_rg" \
-          -backend-config="storage_account_name=devbackendrg" \
-          -backend-config="container_name=mybackup" \
-          -backend-config="key=dev.tfstate"
-
-        terraform apply -auto-approve -var-file=dev.tfvars
-      displayName: "Terraform Apply"
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: 'Env/dev'
+    environmentServiceNameAzureRM: 'azure-terraform-conn'

@@ -1,0 +1,21 @@
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+
+- script: |
+    echo "Repo structure:"
+    ls -R
+  displayName: "Show Repo"
+
+- script: |
+    cd Env/dev
+
+    terraform version
+    terraform init
+    terraform plan -var-file=dev.tfvars
+  displayName: "Terraform Plan"

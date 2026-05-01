@@ -56,7 +56,6 @@ stages:
         backendAzureRmStorageAccountName: 'devbackendrg'
         backendAzureRmContainerName: 'mybackup'
         backendAzureRmKey: 'dev.tfstate'
-        commandOptions: '-var="mod_rg_loc=canadacentral"'
 
     - task: TerraformTaskV4@4
       inputs:
@@ -64,6 +63,7 @@ stages:
         command: plan
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+        commandOptions: '-var-file=dev.tfvars'
 
 # ================= APPLY =================
 - stage: Apply

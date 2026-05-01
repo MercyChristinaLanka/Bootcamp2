@@ -36,6 +36,7 @@ stages:
       displayName: "Terraform Init"
 
 # ================= PLAN =================
+
 - stage: Plan
   displayName: "Terraform Plan"
   dependsOn: Init
@@ -52,13 +53,14 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - script: |
-        cd $(WORKING_DIR)
-
-        terraform version
-        terraform plan -var-file="dev.tfvars" -out=tfplan
+    - task: TerraformTaskV4@4
       displayName: "Terraform Plan"
-
+      inputs:
+        provider: azurerm
+        command: plan
+        workingDirectory: 'Env/dev'
+        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+        commandOptions: '-var-file="terraform.tfvars" -out=tfplan'
 # ================= APPLY =================
 - stage: Apply
   displayName: "Terraform Apply"

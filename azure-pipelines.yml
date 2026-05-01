@@ -15,7 +15,7 @@ stages:
   jobs:
   - job: InitJob
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: ubuntu-latest
 
     steps:
     - checkout: self
@@ -27,8 +27,8 @@ stages:
     - task: TerraformTaskV4@4
       displayName: "Terraform Init"
       inputs:
-        provider: 'azurerm'
-        command: 'init'
+        provider: azurerm
+        command: init
         workingDirectory: $(WORKING_DIR)
         backendServiceArm: $(SERVICE_CONNECTION)
         backendAzureRmResourceGroupName: 'jenkins-rg'
@@ -44,7 +44,7 @@ stages:
   jobs:
   - job: PlanJob
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: ubuntu-latest
 
     steps:
     - checkout: self
@@ -56,10 +56,11 @@ stages:
     - task: TerraformTaskV4@4
       displayName: "Terraform Plan"
       inputs:
-        provider: 'azurerm'
-        command: 'plan'
+        provider: azurerm
+        command: plan
         workingDirectory: $(WORKING_DIR)
-        backendServiceArm: $(SERVICE_CONNECTION)
+        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+        commandOptions: '-var-file="terraform.tfvars" -out=tfplan'
 
 # ================= APPLY =================
 - stage: Apply
@@ -70,7 +71,7 @@ stages:
   jobs:
   - job: ApplyJob
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: ubuntu-latest
 
     steps:
     - checkout: self
@@ -82,7 +83,8 @@ stages:
     - task: TerraformTaskV4@4
       displayName: "Terraform Apply"
       inputs:
-        provider: 'azurerm'
-        command: 'apply'
+        provider: azurerm
+        command: apply
         workingDirectory: $(WORKING_DIR)
-        backendServiceArm: $(SERVICE_CONNECTION)
+        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+        commandOptions: '-auto-approve tfplan'

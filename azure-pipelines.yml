@@ -4,11 +4,9 @@ trigger:
 variables:
   TF_VERSION: '1.5.0'
   WORKING_DIR: 'Env/dev'
-  SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
 
-# ================= PLAN =================
 - stage: Plan
   jobs:
   - job: PlanJob
@@ -17,6 +15,12 @@ stages:
 
     steps:
     - checkout: self
+      clean: true
+
+    - script: |
+        find . -name "*.tf.txt" -delete
+        find . -name "*.tfvars.txt" -delete
+      displayName: "Clean old files"
 
     - task: TerraformInstaller@1
       inputs:
@@ -25,10 +29,7 @@ stages:
     - script: |
         cd $(WORKING_DIR)
 
-        echo "PWD:"
-        pwd
-
-        echo "FILES:"
+        echo "FILES AFTER CLEAN:"
         ls -la
 
         terraform init \
@@ -38,9 +39,8 @@ stages:
           -backend-config="key=dev.tfstate"
 
         terraform plan -var-file=dev.tfvars
-      displayName: "Terraform Plan (CLI)"
+      displayName: "Terraform Plan"
 
-# ================= APPLY =================
 - stage: Apply
   dependsOn: Plan
   condition: succeeded()
@@ -52,6 +52,7 @@ stages:
 
     steps:
     - checkout: self
+      clean: true
 
     - task: TerraformInstaller@1
       inputs:
@@ -67,4 +68,4 @@ stages:
           -backend-config="key=dev.tfstate"
 
         terraform apply -auto-approve -var-file=dev.tfvars
-      displayName: "Terraform Apply (CLI)"
+      displayName: "Terraform Apply"

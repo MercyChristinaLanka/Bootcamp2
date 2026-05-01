@@ -4,6 +4,12 @@ pool:
 steps:
 - checkout: self
 
+# 👇 ADD THIS RIGHT HERE
+- script: |
+    echo "Listing repo structure:"
+    ls -R
+  displayName: "Debug Repo Structure"
+
 - task: TerraformInstaller@1
   inputs:
     terraformVersion: '1.5.0'
@@ -11,5 +17,5 @@ steps:
 - script: |
     terraform version
     terraform init
-  workingDirectory: Environments/dev
+  workingDirectory: environments/dev
   displayName: "Terraform Init"

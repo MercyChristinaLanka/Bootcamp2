@@ -36,7 +36,6 @@ stages:
       displayName: "Terraform Init"
 
 # ================= PLAN =================
-
 - stage: Plan
   displayName: "Terraform Plan"
   dependsOn: Init

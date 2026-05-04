@@ -29,7 +29,7 @@ stages:
         command: 'init'
         workingDirectory: $(WORKING_DIR)
         backendServiceArm: $(SERVICE_CONNECTION)
-        backendAzureRmResourceGroupName: 'devbackendrg'
+        backendAzureRmResourceGroupName: 'jenkins_rg'
         backendAzureRmStorageAccountName: 'devbackend123'
         backendAzureRmContainerName: 'mybackup'
         backendAzureRmKey: 'dev.tfstate'
@@ -58,7 +58,7 @@ stages:
         command: 'init'
         workingDirectory: $(WORKING_DIR)
         backendServiceArm: $(SERVICE_CONNECTION)
-        backendAzureRmResourceGroupName: 'devbackendrg'
+        backendAzureRmResourceGroupName: 'jenkins_rg'
         backendAzureRmStorageAccountName: 'devbackend123'
         backendAzureRmContainerName: 'mybackup'
         backendAzureRmKey: 'dev.tfstate'
@@ -97,7 +97,7 @@ stages:
         command: 'init'
         workingDirectory: $(WORKING_DIR)
         backendServiceArm: $(SERVICE_CONNECTION)
-        backendAzureRmResourceGroupName: 'devbackendrg'
+        backendAzureRmResourceGroupName: 'jenkins_rg'
         backendAzureRmStorageAccountName: 'devbackend123'
         backendAzureRmContainerName: 'mybackup'
         backendAzureRmKey: 'dev.tfstate'

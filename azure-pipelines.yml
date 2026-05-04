@@ -3,20 +3,17 @@ trigger:
 
 variables:
   TF_VERSION: '1.5.0'
-  WORKING_DIR: 'Env/dev'
+  WORKING_DIR: 'Env/dev'   
   SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
 
 # ================= INIT =================
 - stage: Init
-  displayName: "Terraform Init"
-
   jobs:
   - job: InitJob
     pool:
       vmImage: 'ubuntu-latest'
-
     steps:
     - checkout: self
 
@@ -36,17 +33,13 @@ stages:
         backendAzureRmContainerName: 'mybackup'
         backendAzureRmKey: 'dev.tfstate'
 
-
 # ================= PLAN =================
 - stage: Plan
-  displayName: "Terraform Plan"
   dependsOn: Init
-
   jobs:
   - job: PlanJob
     pool:
       vmImage: 'ubuntu-latest'
-
     steps:
     - checkout: self
 
@@ -75,18 +68,14 @@ stages:
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
         commandOptions: '-var-file=dev.tfvars'
 
-
 # ================= APPLY =================
 - stage: Apply
-  displayName: "Terraform Apply"
   dependsOn: Plan
   condition: succeeded()
-
   jobs:
   - job: ApplyJob
     pool:
       vmImage: 'ubuntu-latest'
-
     steps:
     - checkout: self
 
@@ -102,7 +91,7 @@ stages:
         workingDirectory: $(WORKING_DIR)
         backendServiceArm: $(SERVICE_CONNECTION)
         backendAzureRmResourceGroupName: 'devbackendrg'
-        backendAzureRmStorageAccountName: 'devbackend23'
+        backendAzureRmStorageAccountName: 'devbackend123'   # 
         backendAzureRmContainerName: 'mybackup'
         backendAzureRmKey: 'dev.tfstate'
 

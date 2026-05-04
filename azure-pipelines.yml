@@ -3,7 +3,7 @@ trigger:
 
 variables:
   TF_VERSION: '1.5.0'
-  WORKING_DIR: 'Env/dev'
+  WORKING_DIR: 'env/dev'
   SERVICE_CONNECTION: 'azure-terraform-conn'
 
 stages:
@@ -15,7 +15,7 @@ stages:
   jobs:
   - job: InitJob
     pool:
-      vmImage: ubuntu-latest
+      vmImage: 'ubuntu-latest'
 
     steps:
     - checkout: self
@@ -27,14 +27,15 @@ stages:
     - task: TerraformTaskV4@4
       displayName: "Terraform Init"
       inputs:
-        provider: azurerm
-        command: init
+        provider: 'azurerm'
+        command: 'init'
         workingDirectory: $(WORKING_DIR)
         backendServiceArm: $(SERVICE_CONNECTION)
-        backendAzureRmResourceGroupName: 'jenkins-rg'
-        backendAzureRmStorageAccountName: 'devbackendrg'
-        backendAzureRmContainerName: 'mybackup'
+        backendAzureRmResourceGroupName: 'devbackendrg'
+        backendAzureRmStorageAccountName: 'devbackendstorage123'
+        backendAzureRmContainerName: 'myterrbackup'
         backendAzureRmKey: 'dev.tfstate'
+
 
 # ================= PLAN =================
 - stage: Plan
@@ -44,7 +45,7 @@ stages:
   jobs:
   - job: PlanJob
     pool:
-      vmImage: ubuntu-latest
+      vmImage: 'ubuntu-latest'
 
     steps:
     - checkout: self
@@ -53,13 +54,28 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - script: |
-        cd Env/dev
+    # IMPORTANT: re-init before plan
+    - task: TerraformTaskV4@4
+      displayName: "Terraform Init (Plan Stage)"
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: $(WORKING_DIR)
+        backendServiceArm: $(SERVICE_CONNECTION)
+        backendAzureRmResourceGroupName: 'devbackendrg'
+        backendAzureRmStorageAccountName: 'devbackendstorage123'
+        backendAzureRmContainerName: 'myterrbackup'
+        backendAzureRmKey: 'dev.tfstate'
 
-        terraform init
-
-        terraform plan -var-file="terraform.tfvars" -out=tfplan
+    - task: TerraformTaskV4@4
       displayName: "Terraform Plan"
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: $(WORKING_DIR)
+        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+
+
 # ================= APPLY =================
 - stage: Apply
   displayName: "Terraform Apply"
@@ -69,7 +85,7 @@ stages:
   jobs:
   - job: ApplyJob
     pool:
-      vmImage: ubuntu-latest
+      vmImage: 'ubuntu-latest'
 
     steps:
     - checkout: self
@@ -78,7 +94,24 @@ stages:
       inputs:
         terraformVersion: $(TF_VERSION)
 
-    - script: |
-        cd Env/dev
-        terraform apply -auto-approve tfplan
+    # IMPORTANT: re-init before apply
+    - task: TerraformTaskV4@4
+      displayName: "Terraform Init (Apply Stage)"
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: $(WORKING_DIR)
+        backendServiceArm: $(SERVICE_CONNECTION)
+        backendAzureRmResourceGroupName: 'devbackendrg'
+        backendAzureRmStorageAccountName: 'devbackend123'
+        backendAzureRmContainerName: 'mybackup'
+        backendAzureRmKey: 'dev.tfstate'
+
+    - task: TerraformTaskV4@4
       displayName: "Terraform Apply"
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: $(WORKING_DIR)
+        environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
+        commandOptions: '-auto-approve'

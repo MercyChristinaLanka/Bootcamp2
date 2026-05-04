@@ -70,7 +70,7 @@ stages:
         command: 'plan'
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file=$(WORKING_DIR)/dev.tfvars'
+        commandOptions: '-var-file=dev.tfvars'
 
 
 # ================= APPLY =================
@@ -109,4 +109,4 @@ stages:
         command: 'apply'
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-auto-approve -var-file=$(WORKING_DIR)/dev.tfvars'
+        commandOptions: '-var-file=dev.tfvars'

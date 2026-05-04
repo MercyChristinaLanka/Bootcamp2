@@ -73,7 +73,7 @@ stages:
         command: 'plan'
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-var-file=terraform.tfvars'
+        commandOptions: '-var-file=dev.tfvars'
 
 
 # ================= APPLY =================
@@ -113,4 +113,4 @@ stages:
         command: 'apply'
         workingDirectory: $(WORKING_DIR)
         environmentServiceNameAzureRM: $(SERVICE_CONNECTION)
-        commandOptions: '-auto-approve -var-file=terraform.tfvars'
+        commandOptions: '-auto-approve -var-file=dev.tfvars'
